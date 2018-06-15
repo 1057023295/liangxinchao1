@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qfedu.mybatis.mapper.UserMapper">
+   <!-- 动态sql -->
+    <!--  if   choose   trim   where  set foreach-->
+
+    <!-- 1、if -->
+    <!-- 可以先判断传入的值，如果传入的值是null，我们就不拼接
+     username != null
+     -->
+    <select id="selectUserIf" resultType="user">
+      select id,username,birthday,sex,address
+      from user where 1=1
+    <if test="username!=null">
+         and username like #{username}
+    </if>
+        <if test="sex!=null">
+         and sex=#{sex}
+        </if>
+
+    </select>
+
+
+    <!-- 2、choose -->
+    <!--when 当……时-->
+    <!-- 相当于switch case break结构 -->
+    <select id="selectUserChoose" resultType="user">
+      select id,username,birthday,sex,address
+      from user where 1=1
+      <choose>
+
+          <when test="username!=null">
+            and username like #{username}
+
+          </when>
+          <when test="sex!=null and sex!=''">
+              and sex=#{sex}
+
+          </when>
+          <when test="birthday!=null">
+              and birthday=#{birthday}
+          </when>
+          <otherwise>
+              and id=1
+          </otherwise>
+      </choose>
+    </select>
+
+    <!-- 3、where -->
+    <select id="selectUserWhere" resultType="user">
+        select id,username,birthday,sex,address
+        from user
+        <where>
+            1=1
+          <if test="username!=null">
+            and username like #{username}
+
+          </if>
+          <if test="sex!=null">
+
+           and sex=#{sex}
+          </if>
+
+        </where>
+
+
+
+    </select>
+
+
+    <!-- 4、set -->
+    <update id="updateUserSetIf" parameterType="user">
+      update user
+      <set>
+          <if test="username!=null and username!=''">
+              username=#{username},
+          </if>
+          <if test="sex!=null and sex!=''">
+              sex=#{sex},
+          </if>
+          <if test="birthday!=null">
+              birthday=#{birthday},
+          </if>
+      </set>
+        <where>
+            id=#{id}
+
+
+        </where>
+
+    </update>
+
+    <!-- 5、trim -->
+    <update id="updateUserTrimIf" parameterType="user">
+      update user
+      <trim prefix="set" suffixOverrides="," suffix="">
+          <if test="username!=null">
+          username=#{username},
+          </if>
+          <if test="sex!=null">
+              sex=#{sex},
+          </if>
+          <if test="birthday!=null">
+              birthday=#{birthday},
+          </if>
+
+      </trim>
+
+      where id=#{id}
+    </update>
+
+    <select id="selectUserTrimIf" resultType="user">
+        select id,username,birthday,sex,address
+        from user
+        <trim prefix="where" prefixOverrides="and|or">
+          <if test="username!=null">
+              and username like #{username}
+          </if>
+            <if test="sex!=null">
+                and sex like #{sex}
+            </if>
+        </trim>
+
+    </select>
+
+
+    <!--  循环foreach -->
+    <select id="selectForeachList" resultType="user">
+    select * from user where id in
+    <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    </select>
+    <select id="selectForeachArray" resultType="user">
+        select * from user where id in
+        <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <select id="selectForeachMap" resultType="user">
+        select * from user where id in
+        <foreach collection="ids" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>
